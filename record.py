@@ -14,7 +14,7 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    return render_template('feedback_form.html')
+    return render_template('templates\index.html')
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
