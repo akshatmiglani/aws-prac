@@ -14,7 +14,7 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    return render_template('templates\index.html')
+    return render_template('index.html')
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
@@ -27,15 +27,19 @@ def submit_feedback():
     question1 = request.form['question1']
     question2 = request.form['question2']
 
-    # Store data in the MySQL database
-    cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO feedback (roll_number, name, email, course_name, rating, question1, question2) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (roll_number, name, email, course_name, rating, question1, question2))
+    try:
+        # Use a context manager to handle the MySQL connection
+        with mysql.connection.cursor() as cur:
+            cur.execute("INSERT INTO feedback (roll_number, name, email, course_name, rating, question1, question2) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                        (roll_number, name, email, course_name, rating, question1, question2))
 
-    mysql.connection.commit()
-    cur.close()
+        # Commit changes outside the context manager
+        mysql.connection.commit()
 
-    return "Feedback submitted successfully!"
+        return "Feedback submitted successfully!"
+
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)
