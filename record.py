@@ -1,16 +1,19 @@
 from flask import Flask, render_template, request
-from flask_mysqldb import MySQL
+import pymysql
 
 app = Flask(__name__)
 
 # Configure MySQL
-app.config['MYSQL_HOST'] = 'proj-db.cr2mgycg0xoo.ap-south-1.rds.amazonaws.com'
-app.config['MYSQL_USER'] = 'akshat'
-app.config['MYSQL_PASSWORD'] = '1234akshat'
-app.config['MYSQL_DB'] = 'practice'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+db_config = {
+    'host': 'proj-db.cr2mgycg0xoo.ap-south-1.rds.amazonaws.com',
+    'user': 'akshat',
+    'port':3306,
+    'password': '1234akshat',
+    'database': 'practice',
+    'cursorclass': pymysql.cursors.DictCursor
+}
 
-mysql = MySQL(app)
+connection = pymysql.connect(**db_config)
 
 @app.route('/')
 def index():
@@ -28,13 +31,12 @@ def submit_feedback():
     question2 = request.form['question2']
 
     try:
-        # Use a context manager to handle the MySQL connection
-        with mysql.connection.cursor() as cur:
-            cur.execute("INSERT INTO feedback (roll_number, name, email, course_name, rating, question1, question2) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                        (roll_number, name, email, course_name, rating, question1, question2))
+        with connection.cursor() as cursor:
+            # Using parameterized query to prevent SQL injection
+            sql = "INSERT INTO feedback (roll_number, name, email, course_name, rating, question1, question2) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (roll_number, name, email, course_name, rating, question1, question2))
 
-        # Commit changes outside the context manager
-        mysql.connection.commit()
+        connection.commit()
 
         return "Feedback submitted successfully!"
 
