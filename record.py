@@ -1,18 +1,24 @@
 from flask import Flask, render_template, request
 import pymysql
-
+import os
+from dotenv import load_dotenv
 app = Flask(__name__)
+load_dotenv()
 
+HOST=os.getenv("HOST")
+USER=os.getenv("USER")
+PASSWORD=os.getenv("PASSWORD")
+DATABASE=os.getenv("DATABASE")
 # Configure MySQL
 db_config = {
-    'host': 'proj-db.cr2mgycg0xoo.ap-south-1.rds.amazonaws.com',
-    'user': 'akshat',
+    'host': HOST,
+    'user': USER,
     'port':3306,
-    'password': '1234akshat',
-    'database': 'practice',
+    'password': PASSWORD,
+    'database': DATABASE ,
     'cursorclass': pymysql.cursors.DictCursor
 }
-
+print(db_config)
 connection = pymysql.connect(**db_config)
 
 @app.route('/')
