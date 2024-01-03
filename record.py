@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pymysql
 import os
 from dotenv import load_dotenv
+
 app = Flask(__name__)
 load_dotenv()
 
@@ -38,13 +39,13 @@ def submit_feedback():
 
     try:
         with connection.cursor() as cursor:
-            # Using parameterized query to prevent SQL injection
+            
             sql = "INSERT INTO feedback (roll_number, name, email, course_name, rating, question1, question2) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             cursor.execute(sql, (roll_number, name, email, course_name, rating, question1, question2))
 
         connection.commit()
 
-        return "Feedback submitted successfully!"
+        return render_template('success.html')
 
     except Exception as e:
         return f"An error occurred: {str(e)}"
